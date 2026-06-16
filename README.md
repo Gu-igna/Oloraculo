@@ -218,7 +218,7 @@ Oloraculo is a .NET 9 Blazor Server app for predicting the 2026 FIFA World Cup. 
 - Selects the highest usable model as the final oracle, with notes about missing or skipped signals.
 - Runs a repeatable Monte Carlo tournament simulation and stores tournament snapshots.
 - Saves match predictions and evaluates them later with Brier score, RPS, log loss, and top-pick accuracy.
-- Optionally refreshes rankings, API-Football fixture/context data, and availability news classified through OpenRouter.
+- Optionally refreshes rankings, API-Football fixture/context data, and availability news classified through DeepSeek via OpenRouter.
 
 ## Tech Stack
 
