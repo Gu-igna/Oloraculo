@@ -1,3 +1,5 @@
+@using System.Globalization
+
 <div class="prob" role="img" aria-label="@AriaLabel">
     <div class="seg home" style="width:@Pct(Outcome.HomeWin)">@Label(Outcome.HomeWin)</div>
     <div class="seg draw" style="width:@Pct(Outcome.Draw)">@Label(Outcome.Draw)</div>
@@ -16,7 +18,7 @@
     [Parameter] public string? HomeTeamId { get; set; }
     [Parameter] public string? AwayTeamId { get; set; }
 
-    private static string Pct(double value) => $"{Math.Max(value * 100, 0):0.###}%";
-    private static string Label(double value) => value >= .08 ? value.ToString("P0") : "";
-    private string AriaLabel => $"{HomeLabel} {Outcome.HomeWin:P0}, empate {Outcome.Draw:P0}, {AwayLabel} {Outcome.AwayWin:P0}";
+    private static string Pct(double value) => $"{Math.Max(value * 100, 0).ToString("0.###", CultureInfo.InvariantCulture)}%";
+    private static string Label(double value) => value >= .08 ? value.ToString("P0", CultureInfo.InvariantCulture) : "";
+    private string AriaLabel => $"{HomeLabel} {Outcome.HomeWin.ToString("P0", CultureInfo.InvariantCulture)}, empate {Outcome.Draw.ToString("P0", CultureInfo.InvariantCulture)}, {AwayLabel} {Outcome.AwayWin.ToString("P0", CultureInfo.InvariantCulture)}";
 }

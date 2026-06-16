@@ -430,7 +430,7 @@
         };
     }
 
-    private static string SegmentStyle(double value) => $"width:{Math.Max(value * 100, 0):0.###}%";
+    private static string SegmentStyle(double value) => $"width:{Math.Max(value * 100, 0).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}%";
 
     private static string ProbabilityLabel(MatchPredictionResult prediction) =>
         $"{prediction.HomeTeamName} {prediction.BestPrediction.Outcome.HomeWin:P0}, empate {prediction.BestPrediction.Outcome.Draw:P0}, {prediction.AwayTeamName} {prediction.BestPrediction.Outcome.AwayWin:P0}";
