@@ -196,6 +196,7 @@ namespace Oloraculo.Web.Services
                     if (IsFinishedStatus(api.Fixture.Status?.Short) && api.Goals.Home.HasValue && api.Goals.Away.HasValue)
                     {
                         fixture.IsPlayed = true;
+                        fixture.Locked = true;
                         fixture.HomeGoals = api.Teams.Home.Name is { } homeName &&
                             TeamNameNormalizer.ToId(homeName) == fixture.HomeTeamId
                                 ? api.Goals.Home.Value

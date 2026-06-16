@@ -111,10 +111,14 @@
                             var hasPrediction = _predictions.TryGetValue(fixture.Id, out var prediction);
                             var hasError = _predictionErrors.TryGetValue(fixture.Id, out var predictionError);
 
-                            <div class="fixture-match-card">
+                            <div class="fixture-match-card@(fixture.Locked ? " locked" : "")">
                                 <div class="fixture-match-meta">
                                     <span>@DateText(fixture)</span>
-                                    @if (fixture.IsPlayed && fixture.HomeGoals.HasValue && fixture.AwayGoals.HasValue)
+                                    @if (fixture.Locked)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Lock">@fixture.HomeGoals-@fixture.AwayGoals</MudChip>
+                                    }
+                                    else if (fixture.IsPlayed && fixture.HomeGoals.HasValue && fixture.AwayGoals.HasValue)
                                     {
                                         <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">Final</MudChip>
                                     }
@@ -130,7 +134,11 @@
                                     </div>
                                 </div>
 
-                                @if (hasPrediction && prediction is not null)
+                                @if (fixture.Locked)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Tertiary">Bloqueado · resultado final</MudText>
+                                }
+                                else if (hasPrediction && prediction is not null)
                                 {
                                     <div class="fixture-prob-mini" role="img" aria-label="@ProbabilityLabel(prediction)">
                                         <span class="fixture-prob-segment home" style="@SegmentStyle(prediction.BestPrediction.Outcome.HomeWin)"></span>
@@ -207,10 +215,16 @@
 
         try
         {
-            var results = await Predictor.PredictFixturesAsync(OrderedFixtures(_fixtures));
+            var results = await Predictor.PredictFixturesAsync(OrderedFixtures(_fixtures.Where(f => !f.Locked)));
             _predictions = results.ToDictionary(result => result.Fixture.Id, StringComparer.Ordinal);
             _predictedAt = DateTimeOffset.Now;
-            Snackbar.Add($"Fixture completo predicho: {_predictions.Count} partidos.", Severity.Success);
+
+            var lockedCount = _fixtures.Count(f => f.Locked);
+            var predictedCount = _predictions.Count;
+            var msg = lockedCount > 0
+                ? $"Fixture completo predicho: {predictedCount} partidos ({lockedCount} bloqueados omitidos)."
+                : $"Fixture completo predicho: {predictedCount} partidos.";
+            Snackbar.Add(msg, Severity.Success);
         }
         catch (Exception ex)
         {
@@ -226,7 +240,7 @@
 
     private async Task PredictIndividually()
     {
-        foreach (var fixture in OrderedFixtures(_fixtures))
+        foreach (var fixture in OrderedFixtures(_fixtures.Where(f => !f.Locked)))
         {
             try
             {
@@ -366,7 +380,7 @@
     private bool CanSaveFullFixture =>
         _loaded &&
         _fixtures.Count > 0 &&
-        _predictions.Count == _fixtures.Count &&
+        _predictions.Count == _fixtures.Count(f => !f.Locked) &&
         _savedCount == 0 &&
         _activeFullFixtureSnapshotId is null;
 
@@ -377,9 +391,16 @@
         > 0 when _activeFullFixtureSnapshotId is not null && _predictedAt is not null => $"{_predictions.Count} predicciones cargadas {_predictedAt.Value:g}",
         > 0 when _savedCount > 0 => $"{_predictions.Count} predicciones | fixture completo guardado",
         > 0 when _predictedAt is not null => $"{_predictions.Count} predicciones generadas {_predictedAt.Value:t}",
-        _ when _loaded => $"{_fixtures.Count} partidos de grupo",
+        _ when _loaded => FixtureCountText(),
         _ => "Cargando fixture"
     };
+
+    private string FixtureCountText()
+    {
+        var total = _fixtures.Count;
+        var locked = _fixtures.Count(f => f.Locked);
+        return locked > 0 ? $"{total} partidos ({locked} bloqueados)" : $"{total} partidos de grupo";
+    }
 
     private string DateText(Fixture fixture)
     {

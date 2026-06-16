@@ -56,6 +56,7 @@ namespace Oloraculo.Web.Services
                 Source = "manual"
             });
             fixture.IsPlayed = true;
+            fixture.Locked = true;
             fixture.HomeGoals = homeGoals;
             fixture.AwayGoals = awayGoals;
             await _db.SaveChangesAsync(ct);

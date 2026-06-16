@@ -12,6 +12,7 @@
         public string? Status { get; set; }
         public bool NeutralVenue { get; set; } = true;
         public bool IsPlayed { get; set; }
+        public bool Locked { get; set; }
         public int? HomeGoals { get; set; }
         public int? AwayGoals { get; set; }
         public string Source { get; set; } = "derived";

@@ -57,7 +57,7 @@
                                 <MudSpacer />
                                 @if (fixture.IsPlayed && fixture.HomeGoals.HasValue && fixture.AwayGoals.HasValue)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">@fixture.HomeGoals-@fixture.AwayGoals</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined" Icon="@(fixture.Locked ? Icons.Material.Filled.Lock : null)">@fixture.HomeGoals-@fixture.AwayGoals</MudChip>
                                 }
                             </div>
                         }
@@ -95,7 +95,7 @@
                             <BusyButton Text="Predecir ahora"
                                         BusyText="Prediciendo"
                                         IsBusy="_predicting"
-                                        Disabled="@(_loadingSnapshot || _saving || _refreshing)"
+                                        Disabled="@(_selected.Locked || _loadingSnapshot || _saving || _refreshing)"
                                         Icon="@Icons.Material.Filled.AutoAwesome"
                                         OnClick="PredictSelected" />
                             <BusyButton Text="Última guardada"
@@ -126,7 +126,13 @@
                                         Icon="@Icons.Material.Filled.Visibility"
                                         OnClick="LoadSelectedSnapshot" />
                         </MudStack>
-                        @if (_result is not null)
+                        @if (_selected.Locked)
+                        {
+                            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mt-2">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="mr-1" /> Partido bloqueado con resultado final @_selected.HomeGoals-@_selected.AwayGoals. Ya no se puede predecir ni editar.
+                            </MudAlert>
+                        }
+                        else if (_result is not null)
                         {
                             <MudText Typo="Typo.caption" Color="Color.Secondary">@_resultSource</MudText>
                             <div class="prob-wrap">
@@ -186,21 +192,24 @@
                         </MudPaper>
                     }
 
-                    <MudPaper Class="surface-card" Elevation="0">
-                        <MudText Typo="Typo.h6">Resultado</MudText>
-                        <MudGrid Spacing="2" Class="control-grid">
-                            <MudItem xs="12" md="3"><MudText Typo="Typo.body2"><TeamLabel TeamId="@_selected.HomeTeamId" Name="@Name(_selected.HomeTeamId)" /></MudText></MudItem>
-                            <MudItem xs="5" md="2"><MudNumericField T="int" @bind-Value="_homeGoals" Min="0" Variant="Variant.Outlined" /></MudItem>
-                            <MudItem xs="2" md="1" Class="score-separator"><MudText Typo="Typo.body1">-</MudText></MudItem>
-                            <MudItem xs="5" md="2"><MudNumericField T="int" @bind-Value="_awayGoals" Min="0" Variant="Variant.Outlined" /></MudItem>
-                            <MudItem xs="12" md="4"><MudText Typo="Typo.body2"><TeamLabel TeamId="@_selected.AwayTeamId" Name="@Name(_selected.AwayTeamId)" /></MudText></MudItem>
-                            <MudItem xs="12"><BusyButton Text="Evaluar snapshot" BusyText="Evaluando" IsBusy="_applying" Icon="@Icons.Material.Filled.FactCheck" OnClick="ApplyResult" /></MudItem>
-                        </MudGrid>
-                        @if (!string.IsNullOrWhiteSpace(_note))
-                        {
-                            <MudAlert Class="mt-2" Severity="Severity.Info" Variant="Variant.Outlined">@_note</MudAlert>
-                        }
-                    </MudPaper>
+                    @if (!_selected.Locked)
+                    {
+                        <MudPaper Class="surface-card" Elevation="0">
+                            <MudText Typo="Typo.h6">Resultado</MudText>
+                            <MudGrid Spacing="2" Class="control-grid">
+                                <MudItem xs="12" md="3"><MudText Typo="Typo.body2"><TeamLabel TeamId="@_selected.HomeTeamId" Name="@Name(_selected.HomeTeamId)" /></MudText></MudItem>
+                                <MudItem xs="5" md="2"><MudNumericField T="int" @bind-Value="_homeGoals" Min="0" Variant="Variant.Outlined" Disabled="@_selected.Locked" /></MudItem>
+                                <MudItem xs="2" md="1" Class="score-separator"><MudText Typo="Typo.body1">-</MudText></MudItem>
+                                <MudItem xs="5" md="2"><MudNumericField T="int" @bind-Value="_awayGoals" Min="0" Variant="Variant.Outlined" Disabled="@_selected.Locked" /></MudItem>
+                                <MudItem xs="12" md="4"><MudText Typo="Typo.body2"><TeamLabel TeamId="@_selected.AwayTeamId" Name="@Name(_selected.AwayTeamId)" /></MudText></MudItem>
+                                <MudItem xs="12"><BusyButton Text="Evaluar snapshot" BusyText="Evaluando" IsBusy="_applying" Disabled="@_selected.Locked" Icon="@Icons.Material.Filled.FactCheck" OnClick="ApplyResult" /></MudItem>
+                            </MudGrid>
+                            @if (!string.IsNullOrWhiteSpace(_note))
+                            {
+                                <MudAlert Class="mt-2" Severity="Severity.Info" Variant="Variant.Outlined">@_note</MudAlert>
+                            }
+                        </MudPaper>
+                    }
                 </MudStack>
             }
             else

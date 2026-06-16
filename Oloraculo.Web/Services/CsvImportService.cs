@@ -239,6 +239,8 @@ namespace Oloraculo.Web.Services
                     await ExecuteSchemaAsync("ALTER TABLE \"Fixtures\" ADD COLUMN \"HomeGoals\" INTEGER NULL", ct);
                 if (!columns.Contains("AwayGoals"))
                     await ExecuteSchemaAsync("ALTER TABLE \"Fixtures\" ADD COLUMN \"AwayGoals\" INTEGER NULL", ct);
+                if (!columns.Contains("Locked"))
+                    await ExecuteSchemaAsync("ALTER TABLE \"Fixtures\" ADD COLUMN \"Locked\" INTEGER NOT NULL DEFAULT 0", ct);
             }
             finally
             {
