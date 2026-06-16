@@ -18,7 +18,7 @@ namespace Oloraculo.Web.Predictors
         protected readonly int _matchesUsed;
         protected readonly int _yearsWindow;
 
-        public GoalModel(IReadOnlyList<MatchResult> results, int yearsWindow = 8)
+        public GoalModel(IReadOnlyList<MatchResult> results, int yearsWindow = 4)
         {
             _yearsWindow = yearsWindow;
             (_strengths, _avgGoals, _matchesUsed) = Fit(results, yearsWindow);
